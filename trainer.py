@@ -179,7 +179,7 @@ class trainer:
             transforms.Normalize(mean=mean,std=std)
     # Add any other transforms you need
         ])
-        dataset = map_image_loader.CustomTensorDataset(self.config['dataset'],self.config['map'],transform=transform,sample_per_class=2)
+        dataset = map_image_loader.ImageMapLoader(self.config['dataset'],self.config['map'],transform=transform,sample_per_class=2)
         train_dataloader = DataLoader(dataset, batch_size=self.config['batch_size'], shuffle=True)
 
         return train_dataloader

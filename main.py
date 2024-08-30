@@ -5,7 +5,6 @@ sys.path.append(r'../')
 import VanillaNet.models.vanillanet
 import torch
 import json
-import torchvision.models as models
 
 
 def main():
@@ -27,7 +26,7 @@ def main():
     with open('config.json','r') as fl:
         conf = json.load(fl)
 
-    training = trainer_singleGPU_corrected.trainer(config=conf,model=vanillanet_model,
+    training = trainer.trainer(config=conf,model=vanillanet_model,
                                                    log=True,project_name="Full model training",
                                                    seed = 100,temperature=0.3,img_save=True)
     training.train()

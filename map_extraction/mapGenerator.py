@@ -8,7 +8,7 @@ import torchvision.transforms as transforms
 
 import torch
 from torch.utils.data import DataLoader
-
+import map_image_loader
 # import custom_dataloader
 import os
 import generator.network
@@ -18,29 +18,30 @@ import utils.utility
 from datasets import load_dataset
 from collections import defaultdict
 
-# vanillanet_model = create_model(
-#         'vanillanet_5',
-#         pretrained=False,
-#         num_classes=1000,
-#         act_num=3,
-#         drop_rate=0,
-#         deploy=False,
-#         )
-# pretrained = r"../models/vanillanet_5.pth"
-# vanillanet_model.load_state_dict(torch.load(pretrained)['model'])
-# vanillanet_model.to('cuda:1')
-
-from torchvision.models import resnet18
-model = resnet18(num_classes=10)
-model.load_state_dict(torch.load(r'../weights/resnet18_checkpoints_MNIST/resnet18_epoch_4.pth'))
+model = create_model(
+        'vanillanet_5',
+        pretrained=False,
+        num_classes=1000,
+        act_num=3,
+        drop_rate=0,
+        deploy=False,
+        )
+pretrained = r"../models/vanillanet_5.pth"
+model.load_state_dict(torch.load(pretrained)['model'])
 model.to('cuda')
+
+# from torchvision.models import resnet18
+# model = resnet18(num_classes=10)
+# model.load_state_dict(torch.load(r'../weights/resnet18_checkpoints_MNIST/resnet18_epoch_4.pth'))
+# model.to('cuda')
 
 
 layers = utils.utility.getConv(model)
+layers = layers[:-2]
 print(layers)
 hooks = generator.feature_extractor.FeatureExtractor(model,layers)
 
-path = r'../feature_maps/MNIST_resnet_map'
+path = r'../feature_maps/feature_map'
 
 if not os.path.exists(path):
         os.mkdir(path)
@@ -58,8 +59,8 @@ def transform(examples):
     return examples
 
 # Load dataset with transforms
-data = load_dataset('MNIST').with_transform(transform)
-trainLoader = DataLoader(data['test'], batch_size=32,pin_memory=True, num_workers=4)
+dataset = map_image_loader.imageLoader("dataset",transform=_transforms,sample_per_class=2)
+trainLoader = DataLoader(dataset, batch_size=32,pin_memory=True, num_workers=4)
 
 
 def _get_map(hook,image,layers):
@@ -75,7 +76,7 @@ def _get_map(hook,image,layers):
     return map
 counter = defaultdict(int)
 for batch in trainLoader:
-        image, gt = batch["pixel_values"].to('cuda'), batch["label"].to('cuda')
+        image, gt = batch[0].to('cuda'), batch[1].to('cuda')
         
         activation_map = _get_map(hooks,image,layers)
         activation_map = activation_map.detach().cpu()
