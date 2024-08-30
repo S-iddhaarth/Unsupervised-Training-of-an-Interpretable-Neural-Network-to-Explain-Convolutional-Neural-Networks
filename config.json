@@ -1,0 +1,17 @@
+{
+    "device": "cuda:0",
+    "batch_size": 2,
+    "epochs": 10,
+    "train_path": "../subset",
+    "model_path": "../models/vanillanet_5.pth",
+    "learning_rate": 0.00005,
+    "temperature": 0.3,
+    "validation_image_saving_path": "images/validation",
+    "train_image_saving_path": "images/train2",
+    "generator_model_path": "multiModel",
+    "channels": 8,
+    "validation_image": "testing",
+    "dataset":"../subset",
+    "map":["train_map","resnet_train_map"],
+    "num_of_models":2
+}
